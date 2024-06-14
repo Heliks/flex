@@ -1,0 +1,21 @@
+name: Verify
+on: push
+jobs:
+  verify:
+    name: Verify Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '18'
+      - name: Install
+        run: |
+          npm install -g pnpm
+          pnpm install
+      - name: Build Packages
+        run: pnpm build
+      - name: Unit tests
+        run: pnpm test

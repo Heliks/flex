@@ -1,7 +1,7 @@
-Implementation of the [flexbox](https://www.w3.org/TR/css-flexbox-1) algorithm in typescript. Most major features are
-implemented. I do not plan to cover stuff like aspect ratios. 
+Implementation of the [flexbox](https://www.w3.org/TR/css-flexbox-1) algorithm in typescript. Although some features
+are still missing, most major features should be implemented.
 
-Missing planed features: 
+Missing: 
 
 - [ ] min/max size constraints 
 - [ ] position: absolute
