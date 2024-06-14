@@ -1,7 +1,7 @@
 {
   "name": "@heliks/flex",
   "description": "Implementation of flexbox algorithm in typescript",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "devDependencies": {
     "@types/jest": "29.0.1",
     "@types/node": "^20.14.2",
@@ -12,7 +12,10 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc -w",
-    "test": "jest --config jest.config.json"
+    "clean": "rm -rf lib",
+    "test": "jest --config jest.config.json",
+    "deploy": "pnpm clean && pnpm build && pnpm publish",
+    "deploy:dry": "pnpm clean && pnpm build && pnpm publish --dry-run"
   },
   "files": [
     "lib/*"
