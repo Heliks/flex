@@ -273,7 +273,7 @@ function getBaseSizeSpace(node: Node): Rect {
   // During the base size calculation, the child will use the available space to resolve
   // percentages. Percentages should not contribute to the base size calculation of an
   // auto sized child, therefore, if the node size is not yet determined, the child does
-  // not have a definite size, and therefore, the available space in that axis is 0.
+  // not have a definite size. The available space in that axis is 0.
   if (main === undefined) {
     main = 0;
   }
@@ -362,7 +362,6 @@ function resolveFlexibleLengths(node: Node, line: Line): void {
   //    their outer target main size; for other items, use their outer flex base size.
   node.constants.initialFreeSpace = innerMainSize;
 
-
   for (const child of line.nodes) {
     const inner = child.constants.hypotheticalInnerSize.main(node.constants.isRow);
 
@@ -382,9 +381,6 @@ function resolveFlexibleLengths(node: Node, line: Line): void {
       line.unfrozen.push(child);
     }
   }
-
-  // console.log('IFS', node.id, node.constants.initialFreeSpace, node.children.length)
-
 
   // 4. Loop
   while (true) {
@@ -538,7 +534,7 @@ function determineItemCrossSizes(node: Node): void {
  *  as both the main and cross axis for the given `node` are determined. Performing layout
  *  on flex item is skipped if possible.
  * @param known (optional) Dimensions of the node that are already known. If this is set,
- *  the node will use this size no matter.
+ *  the node will use this size regardless of its styling.
  */
 export function compute(node: Node, space: Rect, measure = false, known?: ImmutableRect<Option<number>>): Rect {
   setupConstants(node, space, known);

@@ -77,9 +77,6 @@ export enum AlignContent {
 
 }
 
-/** Alignment modes for justify-content. */
-export type AlignContent2 = AlignContent.Start | AlignContent.Center | AlignContent.End;
-
 /** Defines the layout used for an item. */
 export enum Display {
 
