@@ -4,7 +4,7 @@ are still missing, most major features should be implemented.
 Missing: 
 
 - [ ] min/max size constraints 
-- [ ] position: absolute
+- [x] position: absolute
 - [ ] align-self
 
 ## How to use
