@@ -3,7 +3,7 @@ import { Node } from '../node';
 import { Rect } from '../rect';
 import { Sides } from '../sides';
 import { Size } from '../size';
-import { AlignContent, FlexDirection } from '../style';
+import { AlignContent, FlexDirection, Position } from '../style';
 import { fill, rect } from '../utils';
 
 
@@ -129,5 +129,28 @@ describe('justify', () => {
     compute(node0, space);
 
     expect(node1.pos).toMatchObject(data.expected);
+  });
+
+  it('should ignore children with absolute position', () => {
+    const node0 = new Node({
+      justify: AlignContent.End,
+      size: fill()
+    });
+
+    const node1 = new Node({ size: rect(25) });
+    const node2 = new Node({ size: rect(25) });
+    const node3 = new Node({ position: Position.Absolute, size: rect(25) });
+
+    node0.append(node1);
+    node0.append(node2);
+    node0.append(node3);
+
+    compute(node0, space);
+
+    expect(node3.pos).toMatchObject({ x: 0, y: 0 });
+
+    // Make sure other children are still aligned properly.
+    expect(node1.pos).toMatchObject({ x: 50, y: 0 });
+    expect(node2.pos).toMatchObject({ x: 75, y: 0 });
   });
 });

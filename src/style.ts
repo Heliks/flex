@@ -94,6 +94,29 @@ export enum Display {
 
 }
 
+/** Defines how a flex item is positioned. */
+export enum Position {
+
+  /**
+   * The element is removed from the normal document flow, and no space is created for
+   * the element in the page layout. The element is positioned relative to its closest
+   * positioned ancestor (if any) or to the initial containing block. Its final position
+   * is determined by the values of top, right, bottom, and left.
+   *
+   * Elements with absolute positions do not participate in the flex layout, which means
+   * that they have no effect on resulting container size or flex item alignment. Their
+   * content will be processed as a normal flex container.
+   */
+  Absolute = 'absolute',
+
+  /**
+   * The element is positioned according to the Normal Flow of the document. The top,
+   * right, bottom, left, and z-index properties have no effect.
+   */
+  Static = 'static',
+
+}
+
 /** Available styling options. */
 export interface Style {
 
@@ -138,6 +161,9 @@ export interface Style {
 
   /** Sets the padding area for all four sides of the node. */
   padding: Sides;
+
+  /** Defines how a flex item is positioned. */
+  position: Position;
 
   /**
    * Defines the flex shrink factor of a flex item. If the size of all flex items is

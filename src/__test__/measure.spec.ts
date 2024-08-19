@@ -3,7 +3,7 @@ import { Node } from '../node';
 import { Rect } from '../rect';
 import { Sides } from '../sides';
 import { Size } from '../size';
-import { FlexDirection } from '../style';
+import { FlexDirection, Position } from '../style';
 import { auto, rect } from '../utils';
 
 
@@ -163,6 +163,20 @@ describe('compute', () => {
 
       expect(node0.size).toMatchObject(data.expected);
     });
+
+    it('should ignore flex items with position: absolute', () => {
+      const node0 = new Node();
+      const node1 = new Node({ position: Position.Absolute, size: rect(25) });
+
+      node0.append(node1)
+
+      compute(node0, space);
+
+      expect(node0.size).toMatchObject({
+        width: 0,
+        height: 0
+      });
+    });
   });
 
   // Item measurement
@@ -291,6 +305,63 @@ describe('compute', () => {
 
       expect(node1.size).toMatchObject(new Rect(180, 320));
       expect(node2.size).toMatchObject(new Rect(80, 140));
+    });
+
+    it('should measure definite sized item with absolute position', () => {
+      const node0 = new Node();
+      const node1 = new Node({ position: Position.Absolute, size: rect(25) });
+
+      node0.append(node1)
+
+      compute(node0, space);
+
+      expect(node1.size).toMatchObject({
+        width: 25,
+        height: 25
+      });
+    });
+
+    it('should measure percentage sized item with absolute position', () => {
+      const node0 = new Node({
+        size: rect(100)
+      });
+
+      const node1 = new Node({
+        position: Position.Absolute,
+        size: new Rect<Size>(
+          Size.percent(0.8),
+          Size.percent(0.5)
+        )
+      });
+
+      node0.append(node1)
+
+      compute(node0, space);
+
+      expect(node1.size).toMatchObject({
+        width: 80,
+        height: 50
+      });
+    });
+
+    it('should measure content sized item with absolute position', () => {
+      const node0 = new Node({ size: rect(100) });
+      const node1 = new Node({ position: Position.Absolute, size: auto() });
+
+      const node2 = new Node({ size: rect(25) });
+      const node3 = new Node({ size: rect(25) });
+
+      node0.append(node1);
+
+      node1.append(node2);
+      node1.append(node3);
+
+      compute(node0, space);
+
+      expect(node1.size).toMatchObject({
+        width: 50,
+        height: 25
+      });
     });
 
     it.each([

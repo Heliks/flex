@@ -2,7 +2,7 @@ import { Constants } from './constants';
 import { Line } from './line';
 import { Node } from './node';
 import { ImmutableRect, Rect } from './rect';
-import { calculateAlignOffset, Display, isRow } from './style';
+import { calculateAlignOffset, Display, isRow, Position } from './style';
 import { Option } from './types';
 
 
@@ -111,8 +111,9 @@ function collectLines(node: Node, space: Rect): Line[] {
   while (nodeIdx < node.children.length) {
     const child = node.children[nodeIdx];
 
-    // Skip children that are `display:none` entirely.
-    if (child.style.display === Display.None) {
+    // Items with position: absolute don't participate in the flex layout and are
+    // therefore not part of any flex line.
+    if (child.style.display === Display.None || child.style.position === Position.Absolute) {
       nodeIdx++;
       continue;
     }
@@ -210,8 +211,6 @@ function distributeAvailableSpace(node: Node, lines: Line[], space: Rect): void 
 
   const isRow = node.constants.isRow;
 
-  // console.log('DISTRIBUTE SPACE', node.id, node.constants.size, node.constants.hypotheticalInnerSize, space)
-
   for (const line of lines) {
     const freeMain = space.main(isRow) - line.size.main(isRow) - node.style.padding.main(isRow);
     const availableCrossSpace = space.cross(isRow);
@@ -223,7 +222,6 @@ function distributeAvailableSpace(node: Node, lines: Line[], space: Rect): void 
       const first = i === 0;
 
       const freeCross = availableCrossSpace - child.size.cross(isRow) - node.style.padding.cross(isRow);
-
 
       const justify = calculateAlignOffset(freeMain, count, first, node.style.justify);
 
@@ -424,8 +422,8 @@ function resolveFlexibleLengths(node: Node, line: Line): void {
       if (growing && factors > 0) {
         for (const child of line.unfrozen) {
           const space = free * (child.style.grow / factors);
+
           child.constants.targetSize.setMain(node.constants.isRow, child.constants.baseSize + space);
-          // console.log('grow child', child.id, child.constants.baseSize + space)
         }
       }
       //  If using the flex shrink factor:
@@ -570,6 +568,15 @@ export function compute(node: Node, space: Rect, measure = false, known?: Immuta
   // 6. Resolve flexible lengths.
   for (const line of lines) {
     resolveFlexibleLengths(node, line);
+  }
+
+  // Resolving flexible lengths sets the target size of each flex item, but since items
+  // with position: absolute are not collected into flex lines, they remain undefined,
+  // hence why we set them here manually.
+  for (const child of node.children) {
+    if (child.style.position === Position.Absolute) {
+      child.constants.targetSize.setMain(node.constants.isRow, child.constants.hypotheticalInnerSize.main(node.constants.isRow));
+    }
   }
 
   // 9.4. Cross Size Determination
