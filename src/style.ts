@@ -98,20 +98,15 @@ export enum Display {
 export enum Position {
 
   /**
-   * The element is removed from the normal document flow, and no space is created for
-   * the element in the page layout. The element is positioned relative to its closest
-   * positioned ancestor (if any) or to the initial containing block. Its final position
-   * is determined by the values of top, right, bottom, and left.
-   *
-   * Elements with absolute positions do not participate in the flex layout, which means
-   * that they have no effect on resulting container size or flex item alignment. Their
-   * content will be processed as a normal flex container.
+   * The node doesn't participate in the flexbox layout. It therefore has no effect on
+   * their parent containers size or alignment of its siblings. The node is positioned
+   * relative to its closest ancestor.
    */
   Absolute = 'absolute',
 
   /**
-   * The element is positioned according to the Normal Flow of the document. The top,
-   * right, bottom, left, and z-index properties have no effect.
+   * The node is positioned according to the flexbox layout. This is the default behavior
+   * for any new node.
    */
   Static = 'static',
 
@@ -204,6 +199,7 @@ export function computeStyleSheet<S extends Style = Style>(style: Partial<S> = {
     justify: AlignContent.Start,
     margin: new Sides(0, 0, 0, 0),
     padding: new Sides(0, 0, 0, 0),
+    position: Position.Static,
     size: new Rect(
       Size.auto(),
       Size.auto()
