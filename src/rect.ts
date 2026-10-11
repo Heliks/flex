@@ -18,6 +18,9 @@ export interface ImmutableRect<T> {
 
 }
 
+/** Read-only dimensions whose width or height may still be undetermined. */
+export type Dimensions = ImmutableRect<Option<number>>;
+
 /** A basic rectangle shape. */
 export class Rect<T = number> implements ImmutableRect<T> {
 

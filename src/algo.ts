@@ -1,17 +1,25 @@
 import { Constants } from './constants';
 import { Line } from './line';
 import { Node } from './node';
-import { ImmutableRect, Rect } from './rect';
+import { Dimensions, Rect } from './rect';
 import { calculateAlignOffset, Display, isRow, Position } from './style';
 import { Option } from './types';
 
 
 /** @see https://www.w3.org/TR/css-flexbox-1/#algo-available */
-function determineAvailableSpace(node: Node, space: Rect): Rect {
-  // If node has an inner size, use that. Otherwise, resolve style property against space
-  // that is available to the node itself.
-  const width = node.constants.size.width ?? node.style.size.width.resolve(space.width, space.width);
-  const height = node.constants.size.height ?? node.style.size.height.resolve(space.height, space.height);
+function determineAvailableSpace(node: Node, space: Dimensions): Rect {
+  // setupConstants already resolved definite dimensions from the style or known size.
+  // Undetermined dimensions use the available space for this layout pass.
+  let width = node.constants.size.width;
+  let height = node.constants.size.height;
+
+  if (width === undefined) {
+    width = space.width ?? 0;
+  }
+
+  if (height === undefined) {
+    height = space.height ?? 0;
+  }
 
   node.constants.space.width = width - node.style.margin.horizontal() - node.style.padding.horizontal();
   node.constants.space.height = height - node.style.margin.vertical() - node.style.padding.vertical();
@@ -19,7 +27,7 @@ function determineAvailableSpace(node: Node, space: Rect): Rect {
   return node.constants.space;
 }
 
-function setupConstants(node: Node, space: Rect, known?: ImmutableRect<Option<number>>): void {
+function setupConstants(node: Node, space: Dimensions, known?: Dimensions): void {
   node.constants.frozen = false;
   node.constants.wrap = node.style.wrap;
   node.constants.isRow = isRow(node.style.direction);
@@ -262,27 +270,19 @@ function calculateOuterNodeSize(node: Node): Rect {
  *
  * @internal
  */
-function getBaseSizeSpace(node: Node): Rect {
-  const space = node.constants.scratch1 as Rect;
+function getBaseSizeSpace(node: Node): Rect<Option<number>> {
+  const space = node.constants.scratch1;
 
   let main = node.constants.size.main(node.constants.isRow);
   let cross = node.constants.size.cross(node.constants.isRow);
 
-  // During the base size calculation, the child will use the available space to resolve
-  // percentages. Percentages should not contribute to the base size calculation of an
-  // auto sized child, therefore, if the node size is not yet determined, the child does
-  // not have a definite size. The available space in that axis is 0.
-  if (main === undefined) {
-    main = 0;
-  }
-  else {
+  // Preserve indefinite axes so percentage-sized children can measure their content.
+  // A definite zero must remain distinct from an as-yet unknown container size.
+  if (main !== undefined) {
     main -= node.style.padding.main(node.constants.isRow);
   }
 
-  if (cross === undefined) {
-    cross = 0;
-  }
-  else {
+  if (cross !== undefined) {
     cross -= node.style.padding.cross(node.constants.isRow);
   }
 
@@ -534,7 +534,7 @@ function determineItemCrossSizes(node: Node): void {
  * @param known (optional) Dimensions of the node that are already known. If this is set,
  *  the node will use this size regardless of its styling.
  */
-export function compute(node: Node, space: Rect, measure = false, known?: ImmutableRect<Option<number>>): Rect {
+export function compute(node: Node, space: Dimensions, measure = false, known?: Dimensions): Rect {
   setupConstants(node, space, known);
 
   // If we are only interested in measuring and size can be fully determined from node

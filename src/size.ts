@@ -31,7 +31,7 @@ export class Size<U extends Unit = Unit> {
   /**
    * Resolves the size to an absolute pixel value.
    */
-  public resolve(space: number): number | undefined;
+  public resolve(space: number | undefined): number | undefined;
 
   /**
    * Resolves the size to an absolute pixel value.
@@ -39,15 +39,16 @@ export class Size<U extends Unit = Unit> {
    * If the {@link unit} of this size is {@link Unit.Auto auto}, the `auto` property is
    * returned as fallback.
    */
-  public resolve(space: number, auto: number): number;
+  public resolve(space: number | undefined, auto: number): number;
 
   /** @internal */
-  public resolve(space: number, auto?: number): number | undefined {
+  public resolve(space: number | undefined, auto?: number): number | undefined {
     switch (this.unit) {
       case Unit.Pixels:
         return this.value;
       case Unit.Percentage:
-        return space * this.value;
+        // Percentages behave as auto while their containing size is indefinite.
+        return space === undefined ? auto : space * this.value;
       case Unit.Auto:
         return auto;
     }
